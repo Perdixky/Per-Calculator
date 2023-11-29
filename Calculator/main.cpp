@@ -31,11 +31,11 @@ void extern_version()
     * @brief 一个可以实现科学计算的计算器
     * @author Perdixky
     * @date 2023/11/28
-    * @version 5.3.0
+    * @version 6.0.0
     *
     * @{
-	* v6.0.0  2023/11/28  改进了负数检测法，使用了Git和Github，项目地址https://github.com/Perdixky/Calculator-v5
-	* v5.2.2  2023/11/12  修复了不能使用负数的bug，提高了程序鲁棒性
+    * v6.0.0  2023/11/28  改进了负数检测法，使用了Git和Github，项目地址https://github.com/Perdixky/Calculator-v5
+    * v5.2.2  2023/11/12  修复了不能使用负数的bug，提高了程序鲁棒性
     * v5.2.0  2023/11/6   修复了许多bug，支持了基本初等函数运算
     * v5.1.0  2023/11/6   使用了字符串流代替标准输入流，使用流状态来判断缓冲区是否为空，使用了输入运算符重载
     * v5.0.0  2023/11/3   算法完全重写，支持了小括号，中括号，大括号，计算器迎来全新时代
@@ -102,7 +102,7 @@ void start_up()   //起始信息输出
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 }
 
-void creat_stringstream()
+void create_stringstream()
 {
 	std::string expression;
 	std::getline(std::cin, expression, '\n');   //如果用普通的 >> 输入运算符会在空格处停止获取
@@ -116,7 +116,7 @@ void keywords_preprocess()
 {
 	while (true)
 	{
-		creat_stringstream();
+		create_stringstream();
 		if (isalpha(ss.peek()))
 		{
 			std::string temp;
@@ -132,7 +132,7 @@ void keywords_preprocess()
 			else if (temp == "function") show_function();
 			else
 			{
-				if(Variable::is_defined(temp))
+				if (Variable::is_defined(temp))
 				{
 					char sign;
 					ss >> sign;
@@ -158,7 +158,7 @@ int main()
 {
 	extern_version();
 	start_up();
-	beginning:
+beginning:
 	try {
 		while (true)
 		{
@@ -182,7 +182,7 @@ int main()
 			if (x == "y") {
 				std::cout << "\n重启成功！请重新输入：\n\n";
 				std::cin.ignore(1);
-				// >> 标准输入会将\n留在缓冲区中，进而在creat_stringstream()中的getline()函数会直接结束读取，故需忽略一个字符
+				// >> 标准输入会将\n留在缓冲区中，进而在create_stringstream()中的getline()函数会直接结束读取，故需忽略一个字符
 				goto beginning;
 			}
 			if (x == "n")
