@@ -30,10 +30,11 @@ void extern_version()
     * @file 计算器.exe/.cpp
     * @brief 一个可以实现科学计算的计算器
     * @author Perdixky
-    * @date 2023/11/28
-    * @version 6.0.0
+    * @date 2023/12/6
+    * @version 6.0.1
     *
     * @{
+	* v6.0.1  2023/12/6   修复了一个算法bug，在gpt的帮助下改进了代码
     * v6.0.0  2023/11/28  改进了负数检测法，使用了Git和Github，项目地址https://github.com/Perdixky/Calculator-v5
     * v5.2.2  2023/11/12  修复了不能使用负数的bug，提高了程序鲁棒性
     * v5.2.0  2023/11/6   修复了许多bug，支持了基本初等函数运算
@@ -92,7 +93,11 @@ void show_function()
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 }
 
-void start_up()   //起始信息输出
+
+/**
+ * \brief 起始信息输出
+ */
+void start_up() 
 {
 	std::cout << "请输入计算式、变量定义或指令，用\";\"结尾 \n";
 	std::cout << "提示：\n" << "加 +\t减 -\t乘 *\t除 /\t括号 () [] {}\n";
@@ -102,6 +107,10 @@ void start_up()   //起始信息输出
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 }
 
+
+/**
+ * \brief 创建字符串流，用于承载输入的表达式
+ */
 void create_stringstream()
 {
 	std::string expression;
@@ -112,6 +121,10 @@ void create_stringstream()
 	ss.str(expression);
 }
 
+
+/**
+ * \brief 预处理所有的关键字
+ */
 void keywords_preprocess()
 {
 	while (true)
@@ -145,7 +158,9 @@ void keywords_preprocess()
 				}
 				else
 				{
-					ss.str(ss.str());   //这TM是怎么返回输入在temp中的流的？？？？？
+					//ss.str(ss.str());   //这TM是怎么返回输入在temp中的流的？？？？？
+					//在gpt的帮助下理解了，ss.str()会重置ss的读取位置，进而达到重置的效果，但是并不直观
+					ss.seekg(0);//此函数可以将读取位置重置到流的开始
 					return;
 				}
 			}
@@ -158,41 +173,44 @@ int main()
 {
 	extern_version();
 	start_up();
-beginning:
-	try {
-		while (true)
-		{
-			keywords_preprocess();
-			const double result = calculate();
-			std::cout << '=' << result << "\n\n";
-		}
-	}
-	catch (std::runtime_error& e)   //对所有可能的错误统一处理
+	bool restart = false;
+	while(true)
 	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
-		std::cerr << "\n警告：\n";
-		std::cerr << "严重错误：" << e.what() << '\n';
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
-		std::cin.clear();   //恢复输入流状态标识符
-		std::cout << "重新输入？[y/n]\n\n";
-		while (true)
-		{
-			std::string x;
-			std::cin >> x;
-			if (x == "y") {
-				std::cout << "\n重启成功！请重新输入：\n\n";
-				std::cin.ignore(1);
-				// >> 标准输入会将\n留在缓冲区中，进而在create_stringstream()中的getline()函数会直接结束读取，故需忽略一个字符
-				goto beginning;
+		try {
+			while (true)
+			{
+				keywords_preprocess();
+				const double result = calculate();
+				std::cout << '=' << result << "\n\n";
 			}
-			if (x == "n")
-				return 0;
+		}
+		catch (std::runtime_error& e)   //对所有可能的错误统一处理
+		{
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
 			std::cerr << "\n警告：\n";
-			std::cerr << "这不是正确的指令，请重新输入\n\n";
-			std::cin.clear();
-			std::cin.ignore(50, '\n');
+			std::cerr << "严重错误：" << e.what() << '\n';
 			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+			std::cin.clear();   //恢复输入流状态标识符
+			std::cout << "重新输入？[y/n]\n\n";
+			while (true)
+			{
+				std::string x;
+				std::cin >> x;
+				if (x == "y") {
+					std::cout << "\n重启成功！请重新输入：\n\n";
+					std::cin.ignore(1);
+					// >> 标准输入会将\n留在缓冲区中，进而在create_stringstream()中的getline()函数会直接结束读取，故需忽略一个字符
+					break;
+				}
+				if (x == "n")
+					return 0;
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+				std::cerr << "\n警告：\n";
+				std::cerr << "这不是正确的指令，请重新输入\n\n";
+				std::cin.clear();
+				std::cin.ignore(50, '\n');
+				SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+			}
 		}
 	}
 }

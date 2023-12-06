@@ -11,14 +11,35 @@ std::stack<char> operators;  //运算符栈，存储运算符和方程和括号
 std::stringstream& operator>>(std::stringstream& s, std::string& string);//运算符重载声明
 
 
-inline bool is_operator(const char temp)     //使用内联函数提高效率
+/**
+ * \brief 检查是否是运算符
+ * \param temp 检查的变量
+ * \return 是返回true，不是返回false
+ */
+inline bool is_operator(const char temp)    
 {
 	return temp == '+' || temp == '-' || temp == '*' || temp == '/';     //将(设为0，优先级最低，保证压入
 }
 
+
+/**
+ * \brief 检查是否是整数
+ * \param x 检查的数
+ * \return 是返回true，不是返回false
+ */
 inline bool is_integral(const double x)
 {
 	return x - static_cast<int>(x) <= 1e-06;
+}
+
+
+/**
+ * \brief 检查栈是否为空
+ */
+inline void checkStackNotEmpty()
+{
+	if (numbers.empty()) 
+		throw std::runtime_error("表达式结构错误！");
 }
 
 void string_process(const std::string& name)
@@ -53,20 +74,29 @@ int get_priority(const char temp)
 	}
 }
 
+
+/**
+ * \brief 检查奇偶
+ * \param number 检查的数
+ * \return 是返回true，不是返回false
+ */
 inline bool if_odd(const int number)
 {
 	return static_cast<bool>(number & 1);  //用按位与运算判断奇偶
 }
 
-void operate()              //普通运算，弹出两个数字和一个运算符并运算
+/**
+ * \brief 弹出两个数字和一个运算符并运算，将结果压入栈中
+ */
+void operate()  
 {
-	if (operators.empty()) throw std::runtime_error("表达式结构错误！");
+	checkStackNotEmpty();
 	switch (operators.top())
 	{
 	case '+':
 	{
 		operators.pop();
-		if (numbers.empty()) throw std::runtime_error("表达式结构错误！");
+		checkStackNotEmpty();
 		double right{ numbers.top()};
 		numbers.pop();
 		right = numbers.top() + right;
@@ -77,7 +107,7 @@ void operate()              //普通运算，弹出两个数字和一个运算符并运算
 	case '-':
 	{
 		operators.pop();
-		if (numbers.empty()) throw std::runtime_error("表达式结构错误！");
+		checkStackNotEmpty();
 		double right{ numbers.top() };
 		numbers.pop();
 		right = numbers.top() - right;
@@ -88,10 +118,10 @@ void operate()              //普通运算，弹出两个数字和一个运算符并运算
 	case '*':
 	{
 		operators.pop();
-		if (numbers.empty()) throw std::runtime_error("表达式结构错误！");
+		checkStackNotEmpty();
 		double right{ numbers.top() };
 		numbers.pop();
-		if (numbers.empty()) throw std::runtime_error("表达式结构错误！");
+		checkStackNotEmpty();
 		right = numbers.top() * right;
 		numbers.pop();
 		numbers.push(right);
@@ -100,12 +130,12 @@ void operate()              //普通运算，弹出两个数字和一个运算符并运算
 	case '/':
 	{
 		operators.pop();
-		if (numbers.empty()) throw std::runtime_error("表达式结构错误！");
+		checkStackNotEmpty();
 		if (static_cast<int>(numbers.top()) == 0)
 			throw std::runtime_error("除数不能为0！");
 		double right{ numbers.top() };
 		numbers.pop();
-		if (numbers.empty()) throw std::runtime_error("表达式结构错误！");
+		checkStackNotEmpty();
 		right = numbers.top() / right;
 		numbers.pop();
 		numbers.push(right);
@@ -114,7 +144,7 @@ void operate()              //普通运算，弹出两个数字和一个运算符并运算
 	case 's': //sin
 	{
 		operators.pop();
-		if (numbers.empty()) throw std::runtime_error("表达式结构错误！");
+		checkStackNotEmpty();
 		double right{ numbers.top() };
 		numbers.pop();
 		right = sin(right);
@@ -124,7 +154,7 @@ void operate()              //普通运算，弹出两个数字和一个运算符并运算
 	case 'c': //cos
 	{
 		operators.pop();
-		if (numbers.empty()) throw std::runtime_error("表达式结构错误！");
+		checkStackNotEmpty();
 		double right{ numbers.top() };
 		numbers.pop();
 		right = cos(right);
@@ -134,12 +164,12 @@ void operate()              //普通运算，弹出两个数字和一个运算符并运算
 	case 'l': //log
 	{
 		operators.pop();
-		if (numbers.empty()) throw std::runtime_error("表达式结构错误！");
+		checkStackNotEmpty();
 		const double natural{ numbers.top()};  //取真数
 		if (natural <= 0)
 			throw std::runtime_error("真数不能为非整数！");
 		numbers.pop();
-		if (numbers.empty()) throw std::runtime_error("表达式结构错误！");
+		checkStackNotEmpty();
 		const double base{ numbers.top() };     //取底数
 		if (static_cast<int>(base) == 1 || base <= 0) throw std::runtime_error("底数不能为非正数或1！");
 		numbers.pop();
@@ -149,7 +179,7 @@ void operate()              //普通运算，弹出两个数字和一个运算符并运算
 	case 't': //tan
 	{
 		operators.pop();
-		if (numbers.empty()) throw std::runtime_error("表达式结构错误！");
+		checkStackNotEmpty();
 		double right{ numbers.top() };
 		numbers.pop();
 		right = tan(right);
@@ -159,10 +189,10 @@ void operate()              //普通运算，弹出两个数字和一个运算符并运算
 	case '^': //幂函数
 	{
 		operators.pop();
-		if (numbers.empty()) throw std::runtime_error("表达式结构错误！");
+		checkStackNotEmpty();
 		const double exponential{ numbers.top() };
 		numbers.pop();
-		if (numbers.empty()) throw std::runtime_error("表达式结构错误！");
+		checkStackNotEmpty();
 		const double base{ numbers.top() };
 		numbers.pop();
 		if (static_cast<int>(base) == 0 && static_cast<int>(exponential) == 0) throw std::runtime_error("底数和指数不能同时为0！");
@@ -171,8 +201,10 @@ void operate()              //普通运算，弹出两个数字和一个运算符并运算
 		numbers.push(power);
 		break;
 	}
-	default:
+	case '(': case '[': case '{':
 		throw std::runtime_error("括号不完整！");          //如果在没有右括号的情况下发现括号，报错
+	default:
+		throw std::runtime_error("表达式格式错误！");
 	}
 }
 
@@ -225,8 +257,8 @@ double calculate()
 		else if (is_operator(temp))     //如果是运算符，压入运算符栈
 		{
 			if (!operators.empty() && get_priority(operators.top()) > get_priority(temp)) operate();
-			//如果后边的运算符优先级小于前面的，先弹出两个数字和一个运算符预算后压入数字栈，再把后面运算符压入运算符栈
-			else operators.push(temp);
+				//如果后边的运算符优先级小于前面的，先弹出两个数字和一个运算符预算后压入数字栈，再把后面运算符压入运算符栈
+			operators.push(temp);
 		}
 		else if (temp == ')' || temp == '}' || temp == ']' || temp == ';') operate(temp);   //如果是右括号或分号等提示运算符，则运算到相应符号
 		else

@@ -5,7 +5,7 @@
 class Variable
 {
 public:
-	Variable(const std::string& name, const double value): name_(name), value_(value){ }
+	explicit Variable(const std::string& name, const double value): name_(name), value_(value){ }
 	static double get_value(const std::string& name);
 	static void define();
 	static void assign(const std::string& temp);
